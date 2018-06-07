@@ -1,5 +1,6 @@
-import { Service } from './service'
 import { EventEmitter } from './event-emitter';
+import { Service } from './service';
+import { ConstructorOfService, hasOwn } from './util';
 
 export class ServiceContainer {
 
@@ -9,14 +10,22 @@ export class ServiceContainer {
 
   public readonly onStateChange = new EventEmitter
 
-  getService<ServiceType extends Service>(ServiceClass: any): ServiceType {
-    return this.services[ServiceClass.namespace] as ServiceType
+  private _getService<ServiceType extends Service>(
+    ServiceClass: ConstructorOfService<ServiceType>
+  ): ServiceType {
+    return this.services[(ServiceClass as any).namespace] as ServiceType
   }
 
-  addService<ServiceType extends Service>(ServiceClass: any): ServiceType {
-    const service: ServiceType = new ServiceClass()
-    
-    const namespace = ServiceClass.namespace
+  addService<ServiceType extends Service>(
+    ServiceClass: ConstructorOfService<ServiceType>
+  ): ServiceType {
+    const namespace = (ServiceClass as any).namespace
+
+    if (hasOwn.call(this.services, namespace)) {
+      throw new Error(`The service ${namespace} has been already added`)
+    }
+
+    const service: ServiceType = new ServiceClass(this)
 
     if (typeof namespace !== 'string') {
       throw new Error('Invalid namespace')
@@ -27,6 +36,16 @@ export class ServiceContainer {
     service.onUpdateState.subscribe(_ => this.onStateChange.notifyListeners(this))
 
     return service as ServiceType
+  }
+
+  getService<ServiceType extends Service>(
+    ServiceClass: ConstructorOfService<ServiceType>
+  ): ServiceType {
+    let service = this._getService<ServiceType>(ServiceClass)
+    if (!service) {
+      service = this.addService<ServiceType>(ServiceClass)
+    }
+    return service
   }
 
   setState(state: any) {
@@ -46,5 +65,4 @@ export class ServiceContainer {
       return acc
     }, {})
   }
-
 }

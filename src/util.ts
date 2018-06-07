@@ -1,3 +1,4 @@
+import { ServiceContainer } from ".";
 
 export function append(array: any[], item: any): any[] {
   let cloned = array.slice()
@@ -11,6 +12,12 @@ export function remove(array: any[], item: any): any[] {
   return cloned
 }
 
+export interface ConstructorOfService<ServiceType> {
+  new(serviceContainer: ServiceContainer): ServiceType
+}
+
+export const isArray = Array.isArray
+
 export const hasOwn = Object.prototype.hasOwnProperty
 
 function is(x: any, y: any): boolean {
@@ -18,7 +25,7 @@ function is(x: any, y: any): boolean {
     return x !== 0 || y !== 0 || 1 / x === 1 / y
   } else {
     return x !== x && y !== y
-  } 
+  }
 }
 
 export function shallowEqual(objA: any, objB: any): boolean {
@@ -27,7 +34,7 @@ export function shallowEqual(objA: any, objB: any): boolean {
   }
 
   if (typeof objA !== 'object' || objA === null ||
-      typeof objB !== 'object' || objB === null) {
+    typeof objB !== 'object' || objB === null) {
     return false
   }
 
