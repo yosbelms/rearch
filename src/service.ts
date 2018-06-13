@@ -1,6 +1,6 @@
-import { ServiceContainer } from '.';
-import { EventEmitter } from './event-emitter';
-import { ConstructorOfService } from './util';
+import { ServiceContainer } from '.'
+import { EventEmitter } from './event-emitter'
+import { ConstructorOfService } from './util'
 
 export class Service {
 
@@ -21,8 +21,15 @@ export class Service {
     return this.serviceContainer.getService<ServiceType>(ServiceClass)
   }
 
-  setState(newState: any) {
-    this.state = newState
-    this.onUpdateState.notifyListeners(this)
+  setState(updater: any): Promise<void> {
+    return Promise.resolve().then(() => {
+      if (typeof updater === 'function') {
+        this.state = updater(this.state)
+      } else {
+        this.state = updater
+      }
+      this.onUpdateState.notifyListeners(this)
+    })
   }
+
 }
