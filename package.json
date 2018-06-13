@@ -1,7 +1,7 @@
 {
     "author": "Yosbel Marin",
     "name": "rearch",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "license": "MIT",
     "description": "React application architecture",
     "repository": "https://github.com/yosbelms/rearch.git",
