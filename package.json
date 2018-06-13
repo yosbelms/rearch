@@ -11,7 +11,8 @@
         "test": "./node_modules/.bin/jasmine",
         "build": "tsc --sourceMap",
         "watch": "tsc --sourceMap --watch",
-        "clean": "rm -f ./lib/*"
+        "clean": "rm -f ./lib/*",
+        "preparepublish": "clean && build"
     },
     "keywords": [
         "store",
