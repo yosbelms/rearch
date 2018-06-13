@@ -1,6 +1,6 @@
-import * as PropTypes from 'prop-types';
-import * as React from 'react';
-import { ServiceContainer } from './service-container';
+import * as PropTypes from 'prop-types'
+import * as React from 'react'
+import { ServiceContainer } from './service-container'
 
 export class Scope extends React.Component<
   {

@@ -1,4 +1,4 @@
-import { ServiceContainer } from "./service-container";
+import { ServiceContainer } from './service-container'
 
 declare namespace window {
   const __REDUX_DEVTOOLS_EXTENSION__: {

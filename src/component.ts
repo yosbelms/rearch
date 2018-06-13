@@ -1,7 +1,7 @@
-import * as PropTypes from 'prop-types';
-import * as React from 'react';
-import { Service, ServiceContainer } from '.';
-import { ConstructorOfService, shallowEqual, isArray } from './util';
+import * as PropTypes from 'prop-types'
+import * as React from 'react'
+import { Service, ServiceContainer } from '.'
+import { ConstructorOfService, shallowEqual, isArray } from './util'
 
 const emptyObj = {}
 

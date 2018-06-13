@@ -1,4 +1,4 @@
-import { ServiceContainer } from ".";
+import { ServiceContainer } from '.'
 
 export function append(array: any[], item: any): any[] {
   let cloned = array.slice()

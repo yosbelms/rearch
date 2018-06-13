@@ -1,4 +1,4 @@
-import { append, remove } from './util';
+import { append, remove } from './util'
 
 export class EventEmitter {
 

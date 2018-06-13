@@ -1,6 +1,6 @@
-import { EventEmitter } from './event-emitter';
-import { Service } from './service';
-import { ConstructorOfService, hasOwn } from './util';
+import { EventEmitter } from './event-emitter'
+import { Service } from './service'
+import { ConstructorOfService, hasOwn } from './util'
 
 export class ServiceContainer {
 
