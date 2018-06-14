@@ -19,13 +19,19 @@ export class ServiceContainer {
   addService<ServiceType extends Service>(
     ServiceClass: ConstructorOfService<ServiceType>
   ): ServiceType {
-    const namespace = (ServiceClass as any).namespace
+    // namespace from static props
+    let namespace = (ServiceClass as any).namespace
 
     if (hasOwn.call(this.services, namespace)) {
       throw new Error(`The service ${namespace} has been already added`)
     }
 
     const service: ServiceType = new ServiceClass(this)
+
+    // get namespace from instance
+    if (!namespace) {
+      namespace = (service as any).namespace
+    }
 
     if (typeof namespace !== 'string') {
       throw new Error('Invalid namespace')
