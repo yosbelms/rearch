@@ -26,7 +26,8 @@ export class Service {
   }
 
   /* set service state */
-  setState(updater: any): Promise<void> {
+  setState<T>(updater: T)
+  setState<T>(updater: (state: T) => T): Promise<void> {
     return Promise.resolve().then(() => {
       if (typeof updater === 'function') {
         this.state = updater(this.state)
