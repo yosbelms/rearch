@@ -1,10 +1,11 @@
 import * as PropTypes from 'prop-types'
 import * as React from 'react'
 import { Service, ServiceContainer } from '.'
-import { ConstructorOfService, shallowEqual, isArray } from './util'
+import { ConstructorOf, shallowEqual, isArray } from './util'
 
 const emptyObj = {}
 
+/** Make a components to reset state if any af the services provided changes its state */
 function observeServices(cmp: Component<any, any>, services: Service[]) {
   const reset = resetComponentState(cmp)
   cmp.serviceUnsubscribers = []
@@ -14,6 +15,7 @@ function observeServices(cmp: Component<any, any>, services: Service[]) {
   })
 }
 
+/** Resets component state */
 function resetComponentState(cmp: Component<any, any>) {
   return () => cmp.setState((state) => (state || emptyObj))
 }
@@ -30,8 +32,8 @@ export class ServiceConsumerComponent<P = {}, S = {}> extends React.Component<P,
     super(props, context)
     this.serviceContainer = context.serviceContainer
   }
-
-  getService<ServiceType extends Service>(ServiceClass: ConstructorOfService<ServiceType>) {
+  /** @see ServiceContainer.getService */
+  getService<ServiceType extends Service>(ServiceClass: ConstructorOf<ServiceType>) {
     return this.serviceContainer.getService<ServiceType>(ServiceClass)
   }
 
@@ -58,6 +60,7 @@ export class Component<P = {}, S = {}> extends ServiceConsumerComponent<P, S> {
     }
   }
 
+  /** Select data of service to be compared before ach update */
   reduceServices(): any[] {
     if (isArray(this.observedServices)) {
       return this.observedServices.map(Service => this.getService(Service).state)

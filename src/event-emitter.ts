@@ -6,19 +6,18 @@ export class EventEmitter {
 
   private nextListeners: Function[] = []
 
-  /** Adds a listener to the state manager that will execute after each state update,
-  returns a function that unsubscribes the recently subscribed listener if executed */
+  /** Adds a listener, returns a function that unsubscribes the recently subscribed listener if executed */
   subscribe(listener: Function) {
     this.nextListeners = append(this.nextListeners, listener)
     return () => this.unsubscribe(listener)
   }
 
-  /** Removes a listener from the state manager */
+  /** Removes a listener */
   unsubscribe(listener: Function) {
     this.nextListeners = remove(this.currentListeners, listener)
   }
 
-  /** Executes all subscribed currentListeners passing the provided state as argument */
+  /** Executes all subscribed currentListeners passing the provided arguments */
   notifyListeners(...args: any[]) {
     this.currentListeners = this.nextListeners
     this.currentListeners.forEach(listener => {

@@ -33,6 +33,7 @@
     },
     "devDependencies": {
         "@types/jasmine": "^2.5.54",
+        "enzyme": "^3.3.0",
         "jasmine": "^2.9.0",
         "react": "^16.2.0",
         "react-dom": "^16.2.0",

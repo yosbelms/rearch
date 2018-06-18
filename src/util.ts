@@ -1,18 +1,20 @@
 import { ServiceContainer } from '.'
 
+/* retuns a new array with the provided item added */
 export function append(array: any[], item: any): any[] {
   let cloned = array.slice()
   cloned.push(item)
   return cloned
 }
 
+/* returns a new array without the provided item */
 export function remove(array: any[], item: any): any[] {
   let cloned = array.slice()
   cloned.splice(cloned.indexOf(item), 1)
   return cloned
 }
 
-export interface ConstructorOfService<ServiceType> {
+export interface ConstructorOf<ServiceType> {
   new(serviceContainer: ServiceContainer): ServiceType
 }
 

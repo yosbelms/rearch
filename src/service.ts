@@ -1,10 +1,13 @@
 import { ServiceContainer } from '.'
 import { EventEmitter } from './event-emitter'
-import { ConstructorOfService } from './util'
+import { ConstructorOf } from './util'
 
+/** Base service class */
 export class Service {
 
   public static namespace?: string
+
+  public namespace?: string
 
   private serviceContainer: ServiceContainer
 
@@ -17,10 +20,12 @@ export class Service {
     this.serviceContainer = serviceContainer
   }
 
-  getService<ServiceType extends Service>(ServiceClass: ConstructorOfService<ServiceType>) {
+  /* return a service intsnace*/
+  getService<ServiceType extends Service>(ServiceClass: ConstructorOf<ServiceType>) {
     return this.serviceContainer.getService<ServiceType>(ServiceClass)
   }
 
+  /* set service state */
   setState(updater: any): Promise<void> {
     return Promise.resolve().then(() => {
       if (typeof updater === 'function') {

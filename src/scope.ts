@@ -2,6 +2,7 @@ import * as PropTypes from 'prop-types'
 import * as React from 'react'
 import { ServiceContainer } from './service-container'
 
+/** Scope */
 export class Scope extends React.Component<
   {
     serviceContainer?: ServiceContainer,

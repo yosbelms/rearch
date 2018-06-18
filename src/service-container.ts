@@ -1,23 +1,27 @@
 import { EventEmitter } from './event-emitter'
 import { Service } from './service'
-import { ConstructorOfService, hasOwn } from './util'
+import { ConstructorOf, hasOwn } from './util'
 
+/** Contains and manages service instances */
 export class ServiceContainer {
 
+  /** Registry of service instances */
   private readonly services: {
     [namespace: string]: Service
   } = {}
 
   public readonly onStateChange = new EventEmitter
 
+  /** Returns a service instance */
   private _getService<ServiceType extends Service>(
-    ServiceClass: ConstructorOfService<ServiceType>
+    ServiceClass: ConstructorOf<ServiceType>
   ): ServiceType {
     return this.services[(ServiceClass as any).namespace] as ServiceType
   }
 
+  /** Register a service */
   addService<ServiceType extends Service>(
-    ServiceClass: ConstructorOfService<ServiceType>
+    ServiceClass: ConstructorOf<ServiceType>
   ): ServiceType {
     // namespace from static props
     let namespace = (ServiceClass as any).namespace
@@ -44,8 +48,9 @@ export class ServiceContainer {
     return service as ServiceType
   }
 
+  /** Return a service instance. Tries to register it if doesn't exists */
   getService<ServiceType extends Service>(
-    ServiceClass: ConstructorOfService<ServiceType>
+    ServiceClass: ConstructorOf<ServiceType>
   ): ServiceType {
     let service = this._getService<ServiceType>(ServiceClass)
     if (!service) {
@@ -54,6 +59,7 @@ export class ServiceContainer {
     return service
   }
 
+  /** Set service container state */
   setState(state: any) {
     return Object.keys(this.services).forEach(namespace => {
       const service = this.services[namespace]
@@ -63,6 +69,7 @@ export class ServiceContainer {
     })
   }
 
+  /** Return service container state */
   getState(): {
     [namespace: string]: any
   } {
