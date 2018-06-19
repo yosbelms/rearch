@@ -33,9 +33,9 @@ export class ServiceContainer {
     const service: ServiceType = new ServiceClass(this)
 
     // get namespace from instance
-    if (!namespace) {
-      namespace = (service as any).namespace
-    }
+    // if (!namespace) {
+    //   namespace = (service as any).namespace
+    // }
 
     if (typeof namespace !== 'string') {
       throw new Error('Invalid namespace')
