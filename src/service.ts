@@ -5,9 +5,7 @@ import { ConstructorOf } from './util'
 /** Base service class */
 export class Service {
 
-  public static namespace?: string
-
-  public namespace?: string
+  public static key?: string
 
   private serviceContainer: ServiceContainer
 

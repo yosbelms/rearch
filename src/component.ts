@@ -20,6 +20,7 @@ function resetComponentState(cmp: Component<any, any>) {
   return () => cmp.setState((state) => (state || emptyObj))
 }
 
+/** Abstract Base Component which only consume services */
 export class ServiceConsumerComponent<P = {}, S = {}> extends React.Component<P, S> {
 
   static contextTypes = {
@@ -32,6 +33,7 @@ export class ServiceConsumerComponent<P = {}, S = {}> extends React.Component<P,
     super(props, context)
     this.serviceContainer = context.serviceContainer
   }
+
   /** @see ServiceContainer.getService */
   getService<ServiceType extends Service>(ServiceClass: ConstructorOf<ServiceType>) {
     return this.serviceContainer.getService<ServiceType>(ServiceClass)
@@ -39,6 +41,7 @@ export class ServiceConsumerComponent<P = {}, S = {}> extends React.Component<P,
 
 }
 
+/** Base Component */
 export class Component<P = {}, S = {}> extends ServiceConsumerComponent<P, S> {
 
   public serviceUnsubscribers: any[]
@@ -48,7 +51,7 @@ export class Component<P = {}, S = {}> extends ServiceConsumerComponent<P, S> {
   private reducedServices: any[]
 
   componentDidMount() {
-    this.reducedServices = this.reduceServices()
+    this.reducedServices = this.selectStateToBeCompared()
     if (isArray(this.observedServices)) {
       observeServices(this, this.observedServices)
     }
@@ -60,8 +63,8 @@ export class Component<P = {}, S = {}> extends ServiceConsumerComponent<P, S> {
     }
   }
 
-  /** Select data of service to be compared before ach update */
-  reduceServices(): any[] {
+  /** Select the part of data of to be compared before ach update */
+  selectStateToBeCompared(): any[] {
     if (isArray(this.observedServices)) {
       return this.observedServices.map(Service => this.getService(Service).state)
     }
@@ -72,7 +75,7 @@ export class Component<P = {}, S = {}> extends ServiceConsumerComponent<P, S> {
       return true
     }
 
-    const reducedServices: any[] = this.reduceServices()
+    const reducedServices: any[] = this.selectStateToBeCompared()
 
     const should = reducedServices.reduce((shd, a, idx) =>
       shd || !shallowEqual(a, this.reducedServices[idx]), false)

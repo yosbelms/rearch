@@ -7,7 +7,7 @@ export class ServiceContainer {
 
   /** Registry of service instances */
   private readonly services: {
-    [namespace: string]: Service
+    [key: string]: Service
   } = {}
 
   public readonly onStateChange = new EventEmitter
@@ -16,32 +16,32 @@ export class ServiceContainer {
   private _getService<ServiceType extends Service>(
     ServiceClass: ConstructorOf<ServiceType>
   ): ServiceType {
-    return this.services[(ServiceClass as any).namespace] as ServiceType
+    return this.services[(ServiceClass as any).key] as ServiceType
   }
 
   /** Register a service */
   addService<ServiceType extends Service>(
     ServiceClass: ConstructorOf<ServiceType>
   ): ServiceType {
-    // namespace from static props
-    let namespace = (ServiceClass as any).namespace
+    // key from static props
+    let key = (ServiceClass as any).key
 
-    if (hasOwn.call(this.services, namespace)) {
-      throw new Error(`The service ${namespace} has been already added`)
+    if (hasOwn.call(this.services, key)) {
+      throw new Error(`The service ${key} has been already added`)
     }
 
     const service: ServiceType = new ServiceClass(this)
 
-    // get namespace from instance
-    // if (!namespace) {
-    //   namespace = (service as any).namespace
+    // get key from instance
+    // if (!key) {
+    //   key = (service as any).key
     // }
 
-    if (typeof namespace !== 'string') {
-      throw new Error('Invalid namespace')
+    if (typeof key !== 'string') {
+      throw new Error('Invalid key')
     }
 
-    this.services[namespace] = service
+    this.services[key] = service
 
     service.onUpdateState.subscribe(_ => this.onStateChange.notifyListeners(this))
 
@@ -61,20 +61,20 @@ export class ServiceContainer {
 
   /** Set service container state */
   setState(state: any) {
-    return Object.keys(this.services).forEach(namespace => {
-      const service = this.services[namespace]
+    return Object.keys(this.services).forEach(key => {
+      const service = this.services[key]
       if (service) {
-        service.setState(state[namespace])
+        service.setState(state[key])
       }
     })
   }
 
   /** Return service container state */
   getState(): {
-    [namespace: string]: any
+    [key: string]: any
   } {
-    return Object.keys(this.services).reduce((acc, namespace) => {
-      acc[namespace] = this.services[namespace].state
+    return Object.keys(this.services).reduce((acc, key) => {
+      acc[key] = this.services[key].state
       return acc
     }, {})
   }
