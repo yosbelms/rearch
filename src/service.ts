@@ -9,12 +9,12 @@ export class Service {
 
   private serviceContainer: ServiceContainer
 
-  public onUpdateState: EventEmitter
+  public onSetState: EventEmitter
 
   public state: any
 
   constructor(serviceContainer: ServiceContainer) {
-    this.onUpdateState = new EventEmitter()
+    this.onSetState = new EventEmitter()
     this.serviceContainer = serviceContainer
   }
 
@@ -32,7 +32,7 @@ export class Service {
       } else {
         this.state = updater
       }
-      this.onUpdateState.notifyListeners(this)
+      this.onSetState.notifyListeners(this)
     })
   }
 

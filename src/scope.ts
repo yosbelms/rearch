@@ -36,7 +36,7 @@ export class Scope extends React.Component<
     const onChange = this.props.onChange
     if (typeof onInit === 'function') onInit(this.serviceContainer)
     if (typeof onChange === 'function') {
-      this.serviceContainerSubscription = this.serviceContainer.onStateChange.subscribe(onChange)
+      this.serviceContainerSubscription = this.serviceContainer.onSetState.subscribe(onChange)
     }
   }
 

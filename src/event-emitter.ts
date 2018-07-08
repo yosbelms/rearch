@@ -1,5 +1,6 @@
 import { append, remove } from './util'
 
+/** Emits events */
 export class EventEmitter {
 
   private currentListeners: Function[] = []

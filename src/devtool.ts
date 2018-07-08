@@ -43,7 +43,7 @@ export function devtool(container: ServiceContainer): ServiceContainer {
   if (DevTool !== null) {
     let silence = false
 
-    container.onStateChange.subscribe((container) => {
+    container.onSetState.subscribe((container) => {
       const state = container.getState()
       if (!silence) {
         //args = args.slice()

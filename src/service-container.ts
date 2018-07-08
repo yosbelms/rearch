@@ -2,6 +2,10 @@ import { EventEmitter } from './event-emitter'
 import { Service } from './service'
 import { ConstructorOf, hasOwn } from './util'
 
+export interface ServiceGetter {
+  <ServiceType extends Service>(ServiceClass: ConstructorOf<ServiceType>): ServiceType
+}
+
 /** Contains and manages service instances */
 export class ServiceContainer {
 
@@ -10,7 +14,7 @@ export class ServiceContainer {
     [key: string]: Service
   } = {}
 
-  public readonly onStateChange = new EventEmitter
+  public readonly onSetState = new EventEmitter
 
   /** Returns a service instance */
   private _getService<ServiceType extends Service>(
@@ -43,15 +47,15 @@ export class ServiceContainer {
 
     this.services[key] = service
 
-    service.onUpdateState.subscribe(_ => this.onStateChange.notifyListeners(this))
+    service.onSetState.subscribe(_ => this.onSetState.notifyListeners(this))
 
     return service as ServiceType
   }
 
   /** Return a service instance. Tries to register it if doesn't exists */
-  getService<ServiceType extends Service>(
+  getService: ServiceGetter = <ServiceType extends Service>(
     ServiceClass: ConstructorOf<ServiceType>
-  ): ServiceType {
+  ): ServiceType => {
     let service = this._getService<ServiceType>(ServiceClass)
     if (!service) {
       service = this.addService<ServiceType>(ServiceClass)
