@@ -1,6 +1,14 @@
 import { EventEmitter } from './event-emitter'
 import { Service } from './service'
-import { ConstructorOf, hasOwn } from './util'
+import { ConstructorOf, hasOwn, MapOf } from './util'
+
+export interface StateStransfer {
+  '@@services': MapOf<any>
+  '@@children': MapOf<any>
+}
+
+const SERVICES_KEY = '@@services'
+const CHILDREN_KEY = '@@children'
 
 export interface ServiceGetter {
   <ServiceType extends Service>(ServiceClass: ConstructorOf<ServiceType>): ServiceType
@@ -10,42 +18,71 @@ export interface ServiceGetter {
 export class ServiceContainer {
 
   /** Registry of service instances */
-  private readonly services: {
-    [key: string]: Service
-  } = {}
+  private readonly services: MapOf<Service> = {}
 
   public readonly onSetState = new EventEmitter
+
+  public readonly onChildrenSetState = new EventEmitter
+
+  private readonly children: MapOf<ServiceContainer> = {}
+
+  private readonly unsubscribers: any[] = []
+
+  private parent: ServiceContainer
+
+  appendChild(child: ServiceContainer, namespace: string) {
+    if (this.children[namespace] !== void 0) {
+      throw `The namespace '${namespace}' is already being used by another service container`
+    }
+    this.children[namespace] = child
+  }
+
+  appendTo(parent: ServiceContainer, namespace: string) {
+    parent.appendChild(this, namespace)
+    this.parent = parent
+    const notifyParent = () => {
+      this.parent.onChildrenSetState.notifyListeners(this.parent)
+    }
+    this.unsubscribers.push(this.onSetState.subscribe(notifyParent))
+    this.unsubscribers.push(this.onChildrenSetState.subscribe(notifyParent))
+  }
+
+  isChild(): boolean {
+    return !!this.parent
+  }
+
+  destroy() {
+    // unsubscribe
+    this.unsubscribers.forEach(unsub => unsub())
+    // destroy children
+    Object.keys(this.children).forEach(ns => this.children[ns].destroy())
+  }
 
   /** Returns a service instance */
   private _getService<ServiceType extends Service>(
     ServiceClass: ConstructorOf<ServiceType>
   ): ServiceType {
-    return this.services[(ServiceClass as any).key] as ServiceType
+    return this.services[(ServiceClass as any).namespace] as ServiceType
   }
 
   /** Register a service */
   addService<ServiceType extends Service>(
     ServiceClass: ConstructorOf<ServiceType>
   ): ServiceType {
-    // key from static props
-    let key = (ServiceClass as any).key
+    // namespace from static props
+    let namespace = (ServiceClass as any).namespace
 
-    if (hasOwn.call(this.services, key)) {
-      throw new Error(`The service ${key} has been already added`)
+    if (hasOwn.call(this.services, namespace)) {
+      //throw new Error(`The service ${namespace} has been already added`)
     }
 
     const service: ServiceType = new ServiceClass(this)
 
-    // get key from instance
-    // if (!key) {
-    //   key = (service as any).key
-    // }
-
-    if (typeof key !== 'string') {
+    if (typeof namespace !== 'string') {
       throw new Error('Invalid key')
     }
 
-    this.services[key] = service
+    this.services[namespace] = service
 
     service.onSetState.subscribe(_ => this.onSetState.notifyListeners(this))
 
@@ -64,22 +101,44 @@ export class ServiceContainer {
   }
 
   /** Set service container state */
-  setState(state: any) {
-    return Object.keys(this.services).forEach(key => {
-      const service = this.services[key]
+  setState(stateTransfer: StateStransfer): Promise<any> {
+    // debugger
+    // setup services
+    const promises = []
+
+    Object.keys(this.services).forEach(namespace => {
+      const service = this.services[namespace]
       if (service) {
-        service.setState(state[key])
+        promises.push(service.setState(stateTransfer[SERVICES_KEY][namespace]))
       }
     })
+
+    // setup children
+    Object.keys(this.children).forEach(namespace => {
+      const child = this.children[namespace]
+      if (child) {
+        promises.push(child.setState(stateTransfer[CHILDREN_KEY][namespace]))
+      }
+    })
+
+    return Promise.all(promises)
   }
 
   /** Return service container state */
-  getState(): {
-    [key: string]: any
-  } {
-    return Object.keys(this.services).reduce((acc, key) => {
-      acc[key] = this.services[key].state
+  getState(): StateStransfer {
+    const services = Object.keys(this.services).reduce((acc, namespace) => {
+      acc[namespace] = this.services[namespace].state
       return acc
     }, {})
+
+    const children = Object.keys(this.children).reduce((acc, namespace) => {
+      acc[namespace] = this.children[namespace].getState()
+      return acc
+    }, {})
+
+    return {
+      [SERVICES_KEY]: services,
+      [CHILDREN_KEY]: children
+    }
   }
 }

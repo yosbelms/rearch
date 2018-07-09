@@ -19,6 +19,11 @@ function extractState(message) {
 const maxAge = 50
 
 export function devtool(container: ServiceContainer): ServiceContainer {
+  // do nothing for child
+  if (container.isChild()) {
+    return container
+  }
+
   const DevTool = (
     typeof window !== 'undefined' && typeof window.__REDUX_DEVTOOLS_EXTENSION__ !== 'undefined'
       ? window.__REDUX_DEVTOOLS_EXTENSION__.connect({
@@ -43,7 +48,8 @@ export function devtool(container: ServiceContainer): ServiceContainer {
   if (DevTool !== null) {
     let silence = false
 
-    container.onSetState.subscribe((container) => {
+
+    const listener = (container) => {
       const state = container.getState()
       if (!silence) {
         //args = args.slice()
@@ -56,24 +62,39 @@ export function devtool(container: ServiceContainer): ServiceContainer {
           args: [state]
         }, state)
       }
-    })
+    }
+
+    container.onSetState.subscribe(listener)
+    container.onChildrenSetState.subscribe(listener)
 
     DevTool.subscribe((message) => {
+      if (container.isChild()) {
+        return
+      }
       silence = true
+      let promise: Promise<any>
+
       if (message && message.type) switch (message.type) {
         case 'START':
-          DevTool.init(container.getState())
+          const currentState = container.getState()
+          DevTool.init(currentState)
           break
         case 'DISPATCH':
           if (message.payload) switch (message.payload.type) {
             case 'JUMP_TO_ACTION':
             case 'JUMP_TO_STATE':
-              container.setState(extractState(message) || container.getState())
+              promise = container.setState(extractState(message) || container.getState())
               break
           }
           break
       }
-      silence = false
+
+      if (promise) {
+        promise.then(() => (silence = false))
+      } else {
+        silence = false
+      }
+
       //console.log(JSON.parse(message.state))
     })
   }

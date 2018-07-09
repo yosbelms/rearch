@@ -18,6 +18,10 @@ export interface ConstructorOf<ServiceType> {
   new(serviceContainer: ServiceContainer): ServiceType
 }
 
+export interface MapOf<T> {
+  [key: string] : T
+}
+
 export const isArray = Array.isArray
 
 export const hasOwn = Object.prototype.hasOwnProperty
