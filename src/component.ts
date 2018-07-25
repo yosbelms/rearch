@@ -25,7 +25,7 @@ function createSelectStateToCompare(services: ConstructorOf<Service>[]) {
 
 export function component<P>(
   spec: ComponentSpec,
-  WrappedComponent: React.ComponentType<P>
+  WrappedComponent: React.ComponentType<P & {getService: ServiceGetter}>
 ): React.ComponentType<Partial<P>> {
 
   const wrappedComponentName = WrappedComponent.displayName
@@ -71,7 +71,7 @@ export function component<P>(
 
       selectedStateToCompare: new Array(),
 
-      observeServices: spec.observedServices,
+      observedServices: spec.observedServices,
 
       /** Select the part of data to be compared to decide when to re-render a component */
       selectStateToCompare: (
@@ -109,7 +109,7 @@ export function component<P>(
         delete this.serviceContainer
         delete this.unsubscribers
         delete this.selectedStateToCompare
-        delete this.observeServices
+        delete this.observedServices
       },
 
       shouldComponentUpdate(_, __) {

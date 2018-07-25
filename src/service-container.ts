@@ -79,7 +79,7 @@ export class ServiceContainer {
     const service: ServiceType = new ServiceClass(this)
 
     if (typeof namespace !== 'string') {
-      throw new Error('Invalid key')
+      throw new Error('Invalid namespace')
     }
 
     this.services[namespace] = service
